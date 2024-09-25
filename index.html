@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>サイコロアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 最大値設定の入力フィールド -->
+    <div id="settings">
+        <label for="max-number">最大値（3〜18）：</label>
+        <input type="number" id="max-number" name="max-number" min="3" max="18" value="6">
+    </div>
+
+    <!-- ボタンの配置 -->
+    <button id="roll-button">ダイスを振る</button>
+    <button id="show-result-button" disabled>結果を表示</button>
+    <button id="reset-button">リセット</button>
+
+    <!-- 蓄積結果表示エリア -->
+    <div id="accumulated-results">
+        <!-- 結果がここに表示される -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
