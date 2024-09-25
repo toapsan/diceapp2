@@ -1,12 +1,16 @@
 /* ルート要素のフォントサイズを設定 */
 html {
     font-size: 16px;
+    margin: 0;
+    padding: 0;
 }
 
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin: 20px;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden; /* 横スクロールを防止 */
 }
 
 #settings {
@@ -26,16 +30,20 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 0.625rem; /* 10px相当 */
-    max-width: 100%;
+    width: 100%;
     margin: 1.25rem auto; /* 20px相当 */
+    box-sizing: border-box; /* パディングとボーダーを含める */
+    padding: 0 10px; /* 両サイドに余白を追加 */
 }
 
 .result-set {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap; /* 要素がはみ出さないように折り返す */
     gap: 0.625rem; /* 10px相当 */
     border: 1px solid #000;
     padding: 0.625rem; /* 10px相当 */
+    box-sizing: border-box; /* パディングとボーダーを含める */
 }
 
 .dice {
@@ -49,8 +57,32 @@ body {
     background-color: #fff;
 }
 
+.dice-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* 要素がはみ出さないように折り返す */
+}
+
+.dice-container .dice {
+    margin: 0.3125rem; /* 5px相当 */
+}
+
+/* フォーム要素のスタイル */
+#settings input[type="number"] {
+    font-size: 1.125rem; /* 18px相当 */
+    padding: 0.25rem; /* 4px相当 */
+    width: 4rem; /* 64px */
+}
+
+/* スマートフォン向けの調整 */
+@media (max-width: 767px) {
+    #accumulated-results {
+        grid-template-columns: 1fr; /* 1列に変更 */
+    }
+}
+
+/* タブレット以上の画面サイズでの調整 */
 @media (min-width: 768px) {
-    /* タブレット以上の画面サイズでの調整 */
     #roll-button,
     #show-result-button,
     #reset-button {
@@ -65,8 +97,8 @@ body {
     }
 }
 
+/* デスクトップ画面サイズでの調整 */
 @media (min-width: 1024px) {
-    /* デスクトップ画面サイズでの調整 */
     #roll-button,
     #show-result-button,
     #reset-button {
