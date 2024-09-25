@@ -1,3 +1,8 @@
+/* ルート要素のフォントサイズを設定 */
+html {
+    font-size: 16px;
+}
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -5,41 +10,73 @@ body {
 }
 
 #settings {
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem; /* 20px相当 */
 }
 
 #roll-button,
 #show-result-button,
 #reset-button {
     display: inline-block;
-    margin: 10px;
-    padding: 10px 20px;
-    font-size: 18px;
+    margin: 0.625rem; /* 10px相当 */
+    padding: 0.625rem 1.25rem; /* 10px 20px相当 */
+    font-size: 1.125rem; /* 18px相当 */
 }
 
 #accumulated-results {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-gap: 10px;
-    max-width: 400px;
-    margin: 20px auto;
+    grid-gap: 0.625rem; /* 10px相当 */
+    max-width: 100%;
+    margin: 1.25rem auto; /* 20px相当 */
 }
 
 .result-set {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 0.625rem; /* 10px相当 */
     border: 1px solid #000;
-    padding: 10px;
+    padding: 0.625rem; /* 10px相当 */
 }
 
 .dice {
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
-    line-height: 50px;
+    width: 3.125rem; /* 50px相当 */
+    height: 3.125rem; /* 50px相当 */
+    font-size: 1.875rem; /* 30px相当 */
+    line-height: 3.125rem; /* 50px相当 */
     text-align: center;
     border: 1px solid #000;
-    border-radius: 10px;
+    border-radius: 0.625rem; /* 10px相当 */
     background-color: #fff;
+}
+
+@media (min-width: 768px) {
+    /* タブレット以上の画面サイズでの調整 */
+    #roll-button,
+    #show-result-button,
+    #reset-button {
+        font-size: 1.25rem; /* 20px */
+    }
+
+    .dice {
+        width: 4rem; /* 64px */
+        height: 4rem; /* 64px */
+        font-size: 2.5rem; /* 40px */
+        line-height: 4rem; /* 64px */
+    }
+}
+
+@media (min-width: 1024px) {
+    /* デスクトップ画面サイズでの調整 */
+    #roll-button,
+    #show-result-button,
+    #reset-button {
+        font-size: 1.5rem; /* 24px */
+    }
+
+    .dice {
+        width: 5rem; /* 80px */
+        height: 5rem; /* 80px */
+        font-size: 3rem; /* 48px */
+        line-height: 5rem; /* 80px */
+    }
 }
