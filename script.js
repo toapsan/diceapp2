@@ -255,23 +255,25 @@ function saveResultAsImage() {
     // 透かし用のクラスを追加
     resultsContainer.classList.add('watermark');
 
-    // html2canvasでキャプチャ
-    html2canvas(resultsContainer, {
-        scale: 2,
-        useCORS: true
-    }).then(canvas => {
-        // 透かし用のクラスを削除
-        resultsContainer.classList.remove('watermark');
+    // 次の描画サイクルまで待つ
+    setTimeout(() => {
+        html2canvas(resultsContainer, {
+            scale: 2,
+            useCORS: true
+        }).then(canvas => {
+            // 透かし用のクラスを削除
+            resultsContainer.classList.remove('watermark');
 
-        // 画像として保存
-        const link = document.createElement('a');
-        link.download = 'results.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    }).catch(error => {
-        console.error('画像の保存中にエラーが発生しました:', error);
-        alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
-    });
+            // 画像として保存
+            const link = document.createElement('a');
+            link.download = 'results.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }).catch(error => {
+            console.error('画像の保存中にエラーが発生しました:', error);
+            alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
+        });
+    }, 100); // 100ミリ秒待つ
 }
 
 document.getElementById('roll-button').addEventListener('click', rollDice);
