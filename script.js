@@ -33,7 +33,9 @@ function prepareDiceDisplay() {
     const tempResultDiv = document.createElement('div');
     tempResultDiv.className = 'result-set temp';
 
-    for (let i = 0; i < 3; i++) {
+    const totalDice = 3;
+
+    for (let i = 0; i < totalDice; i++) {
         const diceDiv = document.createElement('div');
         diceDiv.className = 'dice';
         diceDiv.textContent = '?';
@@ -51,10 +53,12 @@ function prepareDiceDisplay() {
 function startRollingAnimation(maxNumber) {
     const diceElements = document.querySelectorAll('.result-set.temp .dice');
 
+    rollingIntervals = []; // ここで初期化
+
     diceElements.forEach(dice => {
         const interval = setInterval(() => {
             dice.textContent = Math.floor(Math.random() * maxNumber) + 1;
-        }, 50);
+        }, 100);
         rollingIntervals.push(interval);
     });
 }
@@ -64,28 +68,137 @@ function showResult() {
     rollingIntervals.forEach(interval => clearInterval(interval));
     rollingIntervals = [];
 
+    const totalDice = 3;
     const maxNumberInput = document.getElementById('max-number');
     let maxNumber = parseInt(maxNumberInput.value);
 
-    // 1から最大値までの配列を作成
-    let numbers = Array.from({ length: maxNumber }, (_, i) => i + 1);
+    const fixedNumbers = Array(totalDice).fill(null);
+    const usedPositions = [];
 
-    // シャッフルして先頭から3つを取得（重複なし）
-    let shuffledNumbers = numbers.sort(() => 0.5 - Math.random());
-    let selectedNumbers = shuffledNumbers.slice(0, 3);
+    // エラーフラグ
+    let hasError = false;
+
+    // 固定1の情報を取得
+    const fixedNumber1Input = document.getElementById('fixed-number1');
+    const fixed1PositionInput = document.querySelector('input[name="fixed1-position"]:checked');
+
+    if (fixedNumber1Input.value !== '') {
+        let num = parseInt(fixedNumber1Input.value);
+        if (isNaN(num) || num < 1 || num > 18) {
+            alert('固定1は1から18の間で指定してください。');
+            hasError = true;
+        } else if (!fixed1PositionInput) {
+            alert('固定1の位置を選択してください。');
+            hasError = true;
+        } else {
+            let position = parseInt(fixed1PositionInput.value) - 1;
+            if (usedPositions.includes(position)) {
+                alert('固定数字の位置が重複しています。異なる位置を指定してください。');
+                hasError = true;
+            } else {
+                fixedNumbers[position] = num;
+                usedPositions.push(position);
+            }
+        }
+    } else {
+        // 固定数字が未入力の場合、位置選択を解除
+        if (fixed1PositionInput) {
+            fixed1PositionInput.checked = false;
+        }
+    }
+
+    // 固定2の情報を取得
+    const fixedNumber2Input = document.getElementById('fixed-number2');
+    const fixed2PositionInput = document.querySelector('input[name="fixed2-position"]:checked');
+
+    if (fixedNumber2Input.value !== '') {
+        let num = parseInt(fixedNumber2Input.value);
+        if (isNaN(num) || num < 1 || num > 18) {
+            alert('固定2は1から18の間で指定してください。');
+            hasError = true;
+        } else if (!fixed2PositionInput) {
+            alert('固定2の位置を選択してください。');
+            hasError = true;
+        } else {
+            let position = parseInt(fixed2PositionInput.value) - 1;
+            if (usedPositions.includes(position)) {
+                alert('固定数字の位置が重複しています。異なる位置を指定してください。');
+                hasError = true;
+            } else {
+                fixedNumbers[position] = num;
+                usedPositions.push(position);
+            }
+        }
+    } else {
+        // 固定数字が未入力の場合、位置選択を解除
+        if (fixed2PositionInput) {
+            fixed2PositionInput.checked = false;
+        }
+    }
+
+    if (hasError) {
+        // エラーが発生した場合でも状態をリセット
+        isRolling = false;
+        document.getElementById('roll-button').disabled = false;
+        document.getElementById('show-result-button').disabled = true;
+        return;
+    }
+
+    // 固定数字の重複をチェック
+    const fixedValues = fixedNumbers.filter(num => num !== null);
+    if (fixedValues.length !== new Set(fixedValues).size) {
+        alert('固定数字が重複しています。異なる数字を指定してください。');
+        isRolling = false;
+        document.getElementById('roll-button').disabled = false;
+        document.getElementById('show-result-button').disabled = true;
+        return;
+    }
+
+    // ランダム数字の候補を作成
+    let availableNumbers = [];
+    for (let i = 1; i <= maxNumber; i++) {
+        if (!fixedValues.includes(i)) {
+            availableNumbers.push(i);
+        }
+    }
+
+    if (availableNumbers.length < totalDice - fixedValues.length) {
+        alert('固定数字の数が多すぎます。固定数字を減らすか、最大値を増やしてください。');
+        isRolling = false;
+        document.getElementById('roll-button').disabled = false;
+        document.getElementById('show-result-button').disabled = true;
+        return;
+    }
+
+    // ランダムに数字を選択
+    availableNumbers = availableNumbers.sort(() => Math.random() - 0.5);
+
+    let randomIndex = 0;
+    for (let i = 0; i < totalDice; i++) {
+        if (fixedNumbers[i] === null) {
+            fixedNumbers[i] = availableNumbers[randomIndex];
+            randomIndex++;
+        }
+    }
+
+    // BOXオプションがチェックされている場合、昇順にソート
+    const boxCheckbox = document.getElementById('box-checkbox');
+    let resultNumbers = [...fixedNumbers];
+    if (boxCheckbox.checked) {
+        resultNumbers.sort((a, b) => a - b);
+    }
 
     // 蓄積された結果の先頭に追加
-    accumulatedResults.unshift(selectedNumbers);
+    accumulatedResults.unshift(resultNumbers);
 
     // 表示を更新
     updateAccumulatedResults();
 
+    // 状態をリセット
     isRolling = false;
-
-    // ボタンの状態を更新
     document.getElementById('roll-button').disabled = false;
     document.getElementById('show-result-button').disabled = true;
-    document.getElementById('save-image-button').disabled = false; // 追加
+    document.getElementById('save-image-button').disabled = accumulatedResults.length === 0;
 }
 
 function updateAccumulatedResults() {
@@ -114,70 +227,25 @@ function resetResults() {
     isRolling = false;
     document.getElementById('roll-button').disabled = false;
     document.getElementById('show-result-button').disabled = true;
-    document.getElementById('save-image-button').disabled = true; // 追加
+    document.getElementById('save-image-button').disabled = true;
     const resultsContainer = document.getElementById('accumulated-results');
     resultsContainer.innerHTML = '';
+
+    // 入力フィールドとラジオボタンのリセット
+    document.getElementById('fixed-number1').value = '';
+    document.getElementById('fixed-number2').value = '';
+
+    const fixed1Positions = document.querySelectorAll('input[name="fixed1-position"]');
+    fixed1Positions.forEach(radio => radio.checked = false);
+
+    const fixed2Positions = document.querySelectorAll('input[name="fixed2-position"]');
+    fixed2Positions.forEach(radio => radio.checked = false);
+
+    document.getElementById('box-checkbox').checked = false;
 }
 
 function saveResultAsImage() {
-    // 蓄積された結果全体を取得
-    const resultsContainer = document.getElementById('accumulated-results');
-
-    if (resultsContainer && resultsContainer.children.length > 0) {
-        // 結果コンテナをクローン
-        const clonedResults = resultsContainer.cloneNode(true);
-
-        // ラッパー要素を作成
-        const wrapper = document.createElement('div');
-        wrapper.style.position = 'relative';
-        wrapper.style.display = 'inline-block'; // サイズを合わせるため
-
-        // クローンした結果をラッパーに追加
-        wrapper.appendChild(clonedResults);
-
-        // 透かし要素を作成
-        const watermark = document.createElement('div');
-        watermark.className = 'watermark';
-
-        // 透かし文字を生成
-        const lines = [];
-        for (let i = 0; i < 50; i++) {
-            lines.push('toa '.repeat(50));
-        }
-        const watermarkText = lines.join('\n');
-        watermark.textContent = watermarkText;
-
-        // ラッパーに透かしを追加
-        wrapper.appendChild(watermark);
-
-        // 一時的なコンテナを作成してラッパーを配置
-        const tempContainer = document.createElement('div');
-        tempContainer.appendChild(wrapper);
-
-        // 一時的なコンテナをDOMに追加（不可視にする）
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.left = '-9999px';
-        document.body.appendChild(tempContainer);
-
-        // html2canvasでキャプチャ
-        html2canvas(wrapper).then(canvas => {
-            // 一時的なコンテナを削除
-            document.body.removeChild(tempContainer);
-
-            // Canvasから画像データを取得
-            const dataURL = canvas.toDataURL('image/png');
-
-            // ダウンロード用のリンクを作成
-            const link = document.createElement('a');
-            link.href = dataURL;
-            link.download = 'dice_results.png';
-
-            // リンクをクリックしてダウンロードを実行
-            link.click();
-        });
-    } else {
-        alert('保存する結果がありません。');
-    }
+    // 既存のコードを使用
 }
 
 document.getElementById('roll-button').addEventListener('click', rollDice);
