@@ -252,37 +252,16 @@ function saveResultAsImage() {
         return;
     }
 
+    // 透かし用のクラスを追加
+    resultsContainer.classList.add('watermark');
+
+    // html2canvasでキャプチャ
     html2canvas(resultsContainer, {
-        scale: 2, // 高解像度でキャプチャ
-        useCORS: true // クロスオリジンの画像を使用可能に
+        scale: 2,
+        useCORS: true
     }).then(canvas => {
-        const ctx = canvas.getContext('2d');
-
-        // 透かしの設定
-        const watermarkText = 'toa';
-        const fontSize = 50; // フォントサイズ（調整可能）
-        const opacity = 0.05; // 透かしの濃さ（0～1で指定、調整可能）
-        const angle = -45 * Math.PI / 180; // 透かしの角度（ラジアン）
-        ctx.font = `${fontSize}px Arial`;
-        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-        ctx.rotate(angle);
-
-        // 透かしの密度と位置調整
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const textWidth = ctx.measureText(watermarkText).width;
-        const textHeight = fontSize;
-        const stepX = 200; // X方向の間隔（調整可能）
-        const stepY = 200; // Y方向の間隔（調整可能）
-
-        for (let x = -canvasHeight; x < canvasWidth * 2; x += stepX) {
-            for (let y = 0; y < canvasHeight * 2; y += stepY) {
-                ctx.fillText(watermarkText, x, y);
-            }
-        }
-
-        // 元の状態に戻す
-        ctx.rotate(-angle);
+        // 透かし用のクラスを削除
+        resultsContainer.classList.remove('watermark');
 
         // 画像として保存
         const link = document.createElement('a');
