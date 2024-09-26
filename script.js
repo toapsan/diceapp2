@@ -58,7 +58,7 @@ function startRollingAnimation(maxNumber) {
     diceElements.forEach(dice => {
         const interval = setInterval(() => {
             dice.textContent = Math.floor(Math.random() * maxNumber) + 1;
-        }, 50);
+        }, 100); // ダイスの速度を調整（ミリ秒）
         rollingIntervals.push(interval);
     });
 }
@@ -259,16 +259,40 @@ function saveResultAsImage() {
     setTimeout(() => {
         html2canvas(resultsContainer, {
             scale: 2,
-            useCORS: true
+            useCORS: true,
+            allowTaint: true,
+            logging: false, // ロギングを無効に（必要に応じてtrueに）
         }).then(canvas => {
             // 透かし用のクラスを削除
             resultsContainer.classList.remove('watermark');
 
-            // 画像として保存
-            const link = document.createElement('a');
-            link.download = 'results.png';
-            link.href = canvas.toDataURL();
-            link.click();
+            // タイムスタンプを生成
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+
+            // Blobを生成
+            canvas.toBlob(function(blob) {
+                if (blob === null) {
+                    alert('画像の保存中にエラーが発生しました。');
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `results_${timestamp}.png`;
+                link.href = url;
+
+                // iOS SafariではリンクをDOMに追加する必要があります
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
         }).catch(error => {
             console.error('画像の保存中にエラーが発生しました:', error);
             alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
