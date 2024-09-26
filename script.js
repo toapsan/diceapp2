@@ -54,7 +54,7 @@ function startRollingAnimation(maxNumber) {
     diceElements.forEach(dice => {
         const interval = setInterval(() => {
             dice.textContent = Math.floor(Math.random() * maxNumber) + 1;
-        }, 100);
+        }, 50);
         rollingIntervals.push(interval);
     });
 }
