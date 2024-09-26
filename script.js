@@ -85,6 +85,7 @@ function showResult() {
     // ボタンの状態を更新
     document.getElementById('roll-button').disabled = false;
     document.getElementById('show-result-button').disabled = true;
+    document.getElementById('save-image-button').disabled = false; // 追加
 }
 
 function updateAccumulatedResults() {
@@ -113,10 +114,73 @@ function resetResults() {
     isRolling = false;
     document.getElementById('roll-button').disabled = false;
     document.getElementById('show-result-button').disabled = true;
+    document.getElementById('save-image-button').disabled = true; // 追加
     const resultsContainer = document.getElementById('accumulated-results');
     resultsContainer.innerHTML = '';
+}
+
+function saveResultAsImage() {
+    // 蓄積された結果全体を取得
+    const resultsContainer = document.getElementById('accumulated-results');
+
+    if (resultsContainer && resultsContainer.children.length > 0) {
+        // 結果コンテナをクローン
+        const clonedResults = resultsContainer.cloneNode(true);
+
+        // ラッパー要素を作成
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block'; // サイズを合わせるため
+
+        // クローンした結果をラッパーに追加
+        wrapper.appendChild(clonedResults);
+
+        // 透かし要素を作成
+        const watermark = document.createElement('div');
+        watermark.className = 'watermark';
+
+        // 透かし文字を生成
+        const lines = [];
+        for (let i = 0; i < 50; i++) {
+            lines.push('toa '.repeat(50));
+        }
+        const watermarkText = lines.join('\n');
+        watermark.textContent = watermarkText;
+
+        // ラッパーに透かしを追加
+        wrapper.appendChild(watermark);
+
+        // 一時的なコンテナを作成してラッパーを配置
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(wrapper);
+
+        // 一時的なコンテナをDOMに追加（不可視にする）
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        document.body.appendChild(tempContainer);
+
+        // html2canvasでキャプチャ
+        html2canvas(wrapper).then(canvas => {
+            // 一時的なコンテナを削除
+            document.body.removeChild(tempContainer);
+
+            // Canvasから画像データを取得
+            const dataURL = canvas.toDataURL('image/png');
+
+            // ダウンロード用のリンクを作成
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'dice_results.png';
+
+            // リンクをクリックしてダウンロードを実行
+            link.click();
+        });
+    } else {
+        alert('保存する結果がありません。');
+    }
 }
 
 document.getElementById('roll-button').addEventListener('click', rollDice);
 document.getElementById('show-result-button').addEventListener('click', showResult);
 document.getElementById('reset-button').addEventListener('click', resetResults);
+document.getElementById('save-image-button').addEventListener('click', saveResultAsImage);
