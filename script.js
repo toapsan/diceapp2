@@ -252,51 +252,73 @@ function saveResultAsImage() {
         return;
     }
 
-    // 透かし用のクラスを追加
-    resultsContainer.classList.add('watermark');
+    // html2canvasでキャプチャ
+    html2canvas(resultsContainer, {
+        scale: 2,
+        useCORS: true,
+        logging: false, // ログを無効に
+    }).then(canvas => {
+        // Canvasに透かしを直接描画
+        const ctx = canvas.getContext('2d');
 
-    // 次の描画サイクルまで待つ（透かしが適用されるのを待つ）
-    setTimeout(() => {
-        html2canvas(resultsContainer, {
-            scale: 2,
-            useCORS: true,
-            logging: false, // ログを無効に（必要に応じてtrueに変更）
-        }).then(canvas => {
-            // 透かし用のクラスを削除
-            resultsContainer.classList.remove('watermark');
+        // 透かしの設定
+        const watermarkText = 'toa'; // 透かし文字
+        const fontSize = 20; // フォントサイズ
+        const opacity = 0.05; // 透かしの濃さ（0～1で指定）
+        const angle = -45 * Math.PI / 180; // 透かしの角度（ラジアン）
+        ctx.font = `${fontSize}px Arial`;
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
 
-            // タイムスタンプを生成
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+        // 透かしの密度と位置調整
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const stepX = 80; // X方向の間隔（調整可能）
+        const stepY = 80; // Y方向の間隔（調整可能）
 
-            // Blobを生成
-            canvas.toBlob(function(blob) {
-                if (blob === null) {
-                    alert('画像の保存中にエラーが発生しました。');
-                    return;
-                }
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.download = `results_${timestamp}.png`;
-                link.href = url;
+        ctx.save();
+        ctx.rotate(angle);
 
-                // iOS SafariではリンクをDOMに追加する必要があります
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }, 'image/png');
-        }).catch(error => {
-            console.error('画像の保存中にエラーが発生しました:', error);
-            alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
-        });
-    }, 200); // 200ミリ秒待つ（必要に応じて調整）
+        for (let x = -canvasHeight; x < canvasWidth * 2; x += stepX) {
+            for (let y = 0; y < canvasHeight * 2; y += stepY) {
+                ctx.fillText(watermarkText, x, y);
+            }
+        }
+
+        ctx.restore();
+
+        // タイムスタンプを生成
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
+
+        // Blobを生成
+        canvas.toBlob(function(blob) {
+            if (blob === null) {
+                alert('画像の保存中にエラーが発生しました。');
+                return;
+            }
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `results_${timestamp}.png`;
+            link.href = url;
+
+            // iOS SafariではリンクをDOMに追加する必要があります
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+    }).catch(error => {
+        console.error('画像の保存中にエラーが発生しました:', error);
+        alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
+    });
 }
 
 document.getElementById('roll-button').addEventListener('click', rollDice);
