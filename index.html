@@ -7,10 +7,43 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 最大値設定の入力フィールド -->
+    <!-- 設定エリア -->
     <div id="settings">
-        <label for="max-number">最大値（3〜18）：</label>
-        <input type="number" id="max-number" name="max-number" min="3" max="18" value="6">
+        <!-- 最大値設定 -->
+        <div class="setting-row">
+            <label for="max-number">最大値（3〜18）：</label>
+            <input type="number" id="max-number" name="max-number" min="3" max="18" value="6">
+        </div>
+
+        <!-- 固定1 -->
+        <div class="setting-row">
+            <label for="fixed-number1">固定1：</label>
+            <input type="number" id="fixed-number1" name="fixed-number1" min="1" max="18">
+            <!-- 位置選択 -->
+            <div class="position-options">
+                <label><input type="radio" name="fixed1-position" value="1"> 1番目</label>
+                <label><input type="radio" name="fixed1-position" value="2"> 2番目</label>
+                <label><input type="radio" name="fixed1-position" value="3"> 3番目</label>
+            </div>
+        </div>
+
+        <!-- 固定2 -->
+        <div class="setting-row">
+            <label for="fixed-number2">固定2：</label>
+            <input type="number" id="fixed-number2" name="fixed-number2" min="1" max="18">
+            <!-- 位置選択 -->
+            <div class="position-options">
+                <label><input type="radio" name="fixed2-position" value="1"> 1番目</label>
+                <label><input type="radio" name="fixed2-position" value="2"> 2番目</label>
+                <label><input type="radio" name="fixed2-position" value="3"> 3番目</label>
+            </div>
+        </div>
+
+        <!-- BOXのチェックボックス -->
+        <div class="setting-row">
+            <label for="box-checkbox">BOX：</label>
+            <input type="checkbox" id="box-checkbox" name="box-checkbox">
+        </div>
     </div>
 
     <!-- ボタンの配置 -->
