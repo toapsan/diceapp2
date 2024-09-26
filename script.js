@@ -58,7 +58,7 @@ function startRollingAnimation(maxNumber) {
     diceElements.forEach(dice => {
         const interval = setInterval(() => {
             dice.textContent = Math.floor(Math.random() * maxNumber) + 1;
-        }, 50);
+        }, 100);
         rollingIntervals.push(interval);
     });
 }
@@ -245,7 +245,54 @@ function resetResults() {
 }
 
 function saveResultAsImage() {
-    // 既存のコードを使用
+    const resultsContainer = document.getElementById('accumulated-results');
+
+    if (accumulatedResults.length === 0) {
+        alert('保存する結果がありません。');
+        return;
+    }
+
+    html2canvas(resultsContainer, {
+        scale: 2, // 高解像度でキャプチャ
+        useCORS: true // クロスオリジンの画像を使用可能に
+    }).then(canvas => {
+        const ctx = canvas.getContext('2d');
+
+        // 透かしの設定
+        const watermarkText = 'toa';
+        const fontSize = 50; // フォントサイズ（調整可能）
+        const opacity = 0.05; // 透かしの濃さ（0～1で指定、調整可能）
+        const angle = -45 * Math.PI / 180; // 透かしの角度（ラジアン）
+        ctx.font = `${fontSize}px Arial`;
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.rotate(angle);
+
+        // 透かしの密度と位置調整
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const textWidth = ctx.measureText(watermarkText).width;
+        const textHeight = fontSize;
+        const stepX = 200; // X方向の間隔（調整可能）
+        const stepY = 200; // Y方向の間隔（調整可能）
+
+        for (let x = -canvasHeight; x < canvasWidth * 2; x += stepX) {
+            for (let y = 0; y < canvasHeight * 2; y += stepY) {
+                ctx.fillText(watermarkText, x, y);
+            }
+        }
+
+        // 元の状態に戻す
+        ctx.rotate(-angle);
+
+        // 画像として保存
+        const link = document.createElement('a');
+        link.download = 'results.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }).catch(error => {
+        console.error('画像の保存中にエラーが発生しました:', error);
+        alert('画像の保存中にエラーが発生しました。コンソールを確認してください。');
+    });
 }
 
 document.getElementById('roll-button').addEventListener('click', rollDice);
