@@ -77,9 +77,9 @@ body {
 }
 
 .dice {
-    width: 60px;
-    height: 60px;
-    font-size: 28px;
+    width: 80px;
+    height: 80px;
+    font-size: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
