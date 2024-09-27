@@ -58,7 +58,7 @@ function startRollingAnimation(maxNumber) {
     diceElements.forEach(dice => {
         const interval = setInterval(() => {
             dice.textContent = Math.floor(Math.random() * maxNumber) + 1;
-        }, 100); // ダイスの速度を調整（ミリ秒）
+        }, 35); // ダイスの速度を調整（ミリ秒）
         rollingIntervals.push(interval);
     });
 }
